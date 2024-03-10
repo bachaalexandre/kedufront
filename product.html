@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="utf-8">
+    <title>kedufron't - Produit</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://kit.fontawesome.com/4495018b32.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Protest+Riot&display=swap">
+</head>
+<body>
+    <header>
+        <div class="banner">
+            <ul class="banner_utility_items">
+                <li class="banner_utility-items -menu">
+                    <i class="fa-solid fa-bars" style="color: #000000;"></i>
+                </li>
+                <li class="banner_utility-items -logo">
+                    <a href="./index.html"><h1 class="logo">KEDUTOYS</h1></a>
+                </li>
+                <li class="banner_utility-items -navbar">
+                    <input type="text" placeholder="Recherche..." name="search">
+                    <button type="submit"><i class="fa-solid fa-magnifying-glass" style="color: black;"></i></button>
+                </li>
+                <li class="banner_utility-items -connexion">
+                    <i class="fa-solid fa-user" style="color: #000000;"></i>
+                </li>
+                <li class="banner_utility-items -panier">
+                    <a href="./panier.html"><i class="fa-solid fa-basket-shopping" style="color: #000000;"></i></a>
+                </li>
+            </ul>
+        </div>
+    </header>
+    <main>
+        <div id="product-details">
+            <!-- Les détails du produit seront insérés ici via JavaScript -->
+        </div>
+    </main>
+    <footer>
+        <ul class="basdepage">
+            <li class="bdp">
+                <div class="flexi">
+                    <h3>A propos</h3>
+                    <p>Fonctionnement du site</p>
+                    <p>Conditions générales de vente</p>
+                    <p>Données et confidentialité</p>
+                </div>
+            </li>
+            <li class="bdp">
+                <div class="flexi">
+                    <h3>Nos hébergements</h3>
+                    <p>Charte qualité</p>
+                    <p>Soumettre votre hôtel</p>
+                </div>
+            </li>
+            <li class="bdp">
+                <div class="flexi">
+                    <h3>Assistance</h3>
+                    <p>Centre d'aide</p>
+                    <p>Nous contacter</p>
+                </div>
+            </li>
+        </ul>
+    </footer>
+    <script>
+                // Récupérer l'ID du produit depuis le localStorage
+        var selectedProductId = localStorage.getItem('selectedProductId');
+
+        // Récupérer la quantité sélectionnée depuis le stockage local
+        var selectedQuantity = localStorage.getItem('selectedQuantity') || 0;
+
+        // Faire une requête à l'API pour obtenir les détails du produit en fonction de son ID
+        fetch(`https://api.kedufront.juniortaker.com/item/${selectedProductId}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Erreur lors de la récupération des données');
+                }
+                return response.json();
+            })
+            .then(data => {
+                // Récupérer les détails du produit à partir de la réponse de l'API
+                var product = data.item;
+
+                // Afficher les détails du produit
+                var productDetailsDiv = document.getElementById('product-details');
+                productDetailsDiv.innerHTML = `
+                <div class="divimage">
+                    <img src="https://api.kedufront.juniortaker.com/item/picture/${product.image}" alt="${product.name}">
+                </div>
+                <div class="productinformations">
+                    <h2 class="nameproduct">${product.name}</h2>
+                    <p>Description: ${product.description}</p>
+                    <p>Prix: ${product.price} €</p>
+                    <select id="quantiteSelect">
+                        ${generateQuantityOptions()}
+                    </select>
+                </div>
+                `;
+                // la quantité par défaut dans le menu déroulant
+                document.getElementById('quantiteSelect').value = selectedQuantity;
+                // Ajouter un écouteur d'événements pour enregistrer la quantité sélectionnée
+                document.getElementById('quantiteSelect').addEventListener('change', function() {
+                    // Récupérer la quantité sélectionnée
+                    var selectedQuantity = this.value;
+                    // Enregistrer la quantité sélectionnée dans le stockage local
+                    localStorage.setItem('selectedQuantity', selectedQuantity);
+                    // Mettre à jour la quantité dans le panier stockée dans le local storage
+                    var cartItems = JSON.parse(localStorage.getItem('cartItems')) || [];
+                    var existingItemIndex = cartItems.findIndex(item => item.productId === selectedProductId);
+                    if (existingItemIndex !== -1) {
+                        cartItems[existingItemIndex].quantity = selectedQuantity;
+                    } else {
+                        // Si le produit n'est pas encore dans le panier, ajouter une nouvelle entrée
+                        cartItems.push({ productId: selectedProductId, quantity: selectedQuantity });
+                    }
+                    localStorage.setItem('cartItems', JSON.stringify(cartItems));
+                });
+            })
+            .catch(error => {
+                console.error('Erreur:', error);
+            });
+        // Fonction pour générer les options de quantité dans le sélecteur
+        function generateQuantityOptions() {
+            var options = '';
+            for (var i = 0; i <= 10; i++) {
+                options += `<option value="${i}">${i}</option>`;
+            }
+            return options;
+        }
+    </script>
+</body>
+</html>

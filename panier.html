@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="utf-8">
+    <title>kedufron't - Panier</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://kit.fontawesome.com/4495018b32.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Protest+Riot&display=swap">
+</head>
+<body>
+    <header>
+        <div class="banner">
+            <ul class="banner_utility_items">
+                <li class="banner_utility-items -menu">
+                    <i class="fa-solid fa-bars" style="color: #000000;"></i>
+                </li>
+                <li class="banner_utility-items -logo">
+                    <a href="./index.html"><h1 class="logo">KEDUTOYS</h1></a>
+                </li>
+                <li class="banner_utility-items -navbar">
+                    <input type="text" placeholder="Recherche..." name="search">
+                    <button type="submit"><i class="fa-solid fa-magnifying-glass" style="color: black;"></i></button>
+                </li>
+                <li class="banner_utility-items -connexion">
+                    <i class="fa-solid fa-user" style="color: #000000;"></i>
+                </li>
+                <li class="banner_utility-items -panier">
+                    <a href="./panier.html"><i class="fa-solid fa-basket-shopping" style="color: #000000;"></i></a>
+                </li>
+            </ul>
+        </div>
+    </header>
+    <main>
+        <h2 class="paniertitre">Votre Panier :</h2>
+        <div class="panier">
+            <div id="cart-details">
+                <!-- Les articles du panier sont ici -->
+            </div>
+            <div class="infopaye">
+                <h2>Total</h2>
+                <div class="soustot">
+                    <p id="subTotal">Sous-total : 0 €</p>
+                </div>
+                <a href="./formulaire.html"><button id="proceedToCheckoutButton">Procéder au paiement</button></a>
+            </div>
+        </div>
+    </main>
+    <footer>
+        <ul class="basdepage">
+            <li class="bdp">
+                <div class="flexi">
+                    <h3>A propos</h3>
+                    <p>Fonctionnement du site</p>
+                    <p>Conditions générales de vente</p>
+                    <p>Données et confidentialité</p>
+                </div>
+            </li>
+            <li class="bdp">
+                <div class="flexi">
+                    <h3>Nos hébergements</h3>
+                    <p>Charte qualité</p>
+                    <p>Soumettre votre hôtel</p>
+                </div>
+            </li>
+            <li class="bdp">
+                <div class="flexi">
+                    <h3>Assistance</h3>
+                    <p>Centre d'aide</p>
+                    <p>Nous contacter</p>
+                </div>
+            </li>
+        </ul>
+    </footer>
+</body>
+<script>
+    //éléments du panier depuis le localStorage
+    var cartItems = JSON.parse(localStorage.getItem('cartItems'));
+    //l'élément où les détails du panier seront affichés
+    var cartDetailsDiv = document.getElementById('cart-details');
+    // si le panier est vide
+    if (!cartItems || cartItems.length === 0) {
+        cartDetailsDiv.innerHTML = '<p>Le panier est vide</p>';
+    } else {
+        //sous-total Pour chaque article dans le panier
+        var subTotal = 0;
+        cartItems.forEach(function(item) {
+            //requête à l'API pour obtenir les détails du produit en fonction de son ID
+            fetch(`https://api.kedufront.juniortaker.com/item/${item.productId}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Erreur lors de la récupération des données');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    //les détails du produit à partir de la réponse de l'API
+                    var product = data.item;
+                    // Vérifier si la quantité est supérieure à 0
+                    if (item.quantity > 0) {
+                        // Calculer le montant total pour cet article
+                        var totalForItem = product.price * item.quantity;
+                        // Ajouter le montant total au sous-total
+                        subTotal += totalForItem;
+                        // Afficher les détails de l'article avec le bouton de sélection de quantité
+                        cartDetailsDiv.innerHTML += `
+                            <div class="item">
+                                <div class="image">
+                                    <img src="https://api.kedufront.juniortaker.com/item/picture/${product.image}" alt="${product.name}">
+                                </div>
+                                <div class="details">
+                                    <h3>${product.name}</h3>
+                                    <p>Prix unitaire: ${product.price} €</p>
+                                    <div>
+                                        <label for="quantity-${item.productId}">Quantité:</label>
+                                        <select id="quantity-${item.productId}" class="quantity-selector" data-product-id="${item.productId}">
+                                            ${generateQuantityOptions(item.quantity, item.quantity)}
+                                        </select>
+                                    </div>
+                                    <p>Total: ${totalForItem} €</p>
+                                </div>
+                            </div>
+                        `;
+                    }
+                    document.getElementById('subTotal').textContent = `Sous-total : ${subTotal} €`;
+                    // Mettre à jour le prix total lorsque la quantité est modifiée
+                    document.querySelectorAll('.quantity-selector').forEach(selector => {
+                        selector.addEventListener('change', updateTotal);
+                    });
+                })
+                .catch(error => {
+                    console.error('Erreur:', error);
+                });
+        });
+    }
+    //générer les options de quantité dans le sélecteur
+    function generateQuantityOptions(selectedQuantity, storedQuantity) {
+        var options = '';
+        for (var i = 0; i <= 10; i++) {
+            if (i === selectedQuantity) {
+                options += `<option value="${i}" selected>${i}</option>`;
+            } else {
+                options += `<option value="${i}">${i}</option>`;
+            }
+        }
+        // Ajouter la quantité stockée dans le local storage
+        if (storedQuantity > 0 && storedQuantity <= 10) {
+            options += `<option value="${storedQuantity}" selected>${storedQuantity}</option>`;
+        } else if (storedQuantity > 10) {
+            options += `<option value="${storedQuantity}" selected>${storedQuantity}</option>`;
+        }
+        return options;
+    }
+    //mettre à jour le prix total lorsque la quantité est modifiée
+    function updateTotal() {
+        var subTotal = 0;
+        document.querySelectorAll('.item').forEach(item => {
+            var productId = item.querySelector('.quantity-selector').getAttribute('data-product-id');
+            var quantity = parseInt(item.querySelector('.quantity-selector').value);
+            var price = parseFloat(item.querySelector('.details').querySelector('p:nth-child(2)').textContent.split(':')[1]);
+            var totalForItem = price * quantity;
+            subTotal += totalForItem;
+            item.querySelector('.details').querySelector('p:nth-child(4)').textContent = `Total: ${totalForItem} €`;
+        });
+        document.getElementById('subTotal').textContent = `Sous-total : ${subTotal} €`;
+    }
+</script>
+</html>

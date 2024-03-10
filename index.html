@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="utf-8">
+    <title>kedufron't</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://kit.fontawesome.com/4495018b32.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Protest+Riot&display=swap">
+</head>
+<body>
+    <header>
+        <div class="banner">
+            <ul class="banner_utility_items">
+                <li class="banner_utility-items -menu">
+                    <i class="fa-solid fa-bars" style="color: #000000;"></i>
+                </li>
+                <li class="banner_utility-items -logo">
+                    <a href="./index.html"><h1 class="logo">KEDUTOYS</h1></a>
+                <li class="banner_utility-items -navbar">
+                    <input type="text" placeholder="Recherche..." name="search">
+                    <button type="submit"><i class="fa-solid fa-magnifying-glass" style="color: black;"></i></button>
+                </li>
+                <li class="banner_utility-items -connexion">
+                    <i class="fa-solid fa-user" style="color: #000000;"></i>
+                </li>
+                <li class="banner_utility-items -panier">
+                    <a href="./panier.html"><i class="fa-solid fa-basket-shopping" style="color: #000000;"></i></a>
+                </li>
+            </ul>
+        </div>
+    </header>
+    <main>
+        <div class="argvente">
+            <ul class="instanteview">
+                <li class="infos argvente-item">
+                    <div class="defile">
+                        <h2>SATISFAIT OU REMBOURSÉ</h2>
+                        <h3>Pendant 15 jours</h3>
+                    </div>
+                </li>
+                <li class="infos argvente-item">
+                    <div class="defile">
+                        <h2>LIVRAISON GRATUITE</h2>
+                        <h3>Dès 50€ d'achats</h3>
+                    </div>
+                </li>
+                <li class="infos argvente-item">
+                    <div class="defile">
+                        <h2>SERVICE CLIENTS</h2>
+                        <h3>Contactez-nous 6/7j</h3>
+                    </div>
+                </li>
+            </ul>
+        </div>
+        <div class="imagea">
+            <div class="textvedette"><h1>NOS VEDETTES</h1></div>
+            <div id="first-products-container"></div>
+            <div class="textvedette"><h1>LES INCONTOURNABLES</h1></div>
+            <div id="next-products-container"></div>
+        </div>
+
+        <script>
+            const argventItems = document.querySelectorAll('.argvente-item');
+            let currentItemIndex = 0;
+
+            // Fonction pour faire défiler les éléments
+            function scrollArgventItems() {
+            argventItems.forEach(item => {
+                item.style.display = 'none'; // Masquer tous les éléments
+            });
+            argventItems[currentItemIndex].style.display = 'block'; // Afficher l'élément actuel
+            currentItemIndex = (currentItemIndex + 1) % argventItems.length; // Passer à l'élément suivant
+        }
+        // Début du défilement automatique
+        setInterval(scrollArgventItems, 3000); 
+            const apiUrl = 'https://api.kedufront.juniortaker.com/item/';
+            fetch(apiUrl)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Erreur lors de la récupération des données');
+                    }
+                    return response.json();
+                })
+                .then(products => {
+                    const firstProductsContainer = document.getElementById('first-products-container');
+                    const nextProductsContainer = document.getElementById('next-products-container');
+
+                    products.forEach((product, index) => {
+                        const productElement = document.createElement('div');
+                        productElement.classList.add('product');
+
+                        const imageElement = document.createElement('img');
+                        imageElement.src = `https://api.kedufront.juniortaker.com/item/picture/${product.image}`;
+                        imageElement.alt = product.name;
+                        
+                        imageElement.addEventListener('click', () => {
+                            localStorage.setItem('selectedProductId', product._id);
+                            window.location.href = 'product.html';
+                        });
+                        
+                        productElement.appendChild(imageElement);
+
+                        const nameElement = document.createElement('h2');
+                        nameElement.textContent = product.name;
+                        productElement.appendChild(nameElement);
+
+                        const priceElement = document.createElement('p');
+                        priceElement.textContent = `Prix : ${product.price} €`;
+                        productElement.appendChild(priceElement);
+
+                        if (index < 3) {
+                            firstProductsContainer.appendChild(productElement);
+                        } else {
+                            nextProductsContainer.appendChild(productElement);
+                        }
+                    });
+                })
+                .catch(error => {
+                    console.error('Erreur:', error);
+                });
+        </script>
+    </main>
+    <footer>
+        <ul class="basdepage">
+            <li class="bdp">
+                <div class="flexi">
+                    <h3>A propos</h3>
+                    <p>Fonctionnement du site</p>
+                    <p>Conditions générales de vente</p>
+                    <p>Données et confidentialité</p>
+                </div>
+            </li>
+            <li class="bdp">
+                <div class="flexi">
+                    <h3>Nos hébergements</h3>
+                    <p>Charte qualité</p>
+                    <p>Soumettre votre hôtel</p>
+                </div>
+            </li>
+            <li class="bdp">
+                <div class="flexi">
+                    <h3>Assistance</h3>
+                    <p>Centre d'aide</p>
+                    <p>Nous contacter</p>
+                </div>
+            </li>
+        </ul>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,79 @@
+body {
+    font-family: 'Lilita One', cursive;
+    text-align: center;
+    background-color: rgba(255, 214, 237, 0.5);
+}
+.confirmation-container {
+    margin: 50px auto;
+    padding: 20px;
+    border: 2px solid rgba(255, 214, 237, 1);
+    max-width: 600px;
+    border-radius: 10px;
+}
+h2 {
+    color: rgb(241, 154, 204);
+}
+p {
+    margin: 10px 0;
+}
+.btn {
+    background-color: rgba(255, 214, 237, 1);
+    color: #fff;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    margin-top: 20px;
+}
+.btn:hover {
+    background-color: rgba(255, 214, 237, 0.5);;
+}
+form {
+    max-width: 400px;
+    margin: 0 auto;
+    padding: 20px;
+    background: #fff;
+    border-radius: 20px;
+    box-shadow: 0 0 10px rgba(255, 214, 237, 1);;
+}
+
+label {
+    display: block;
+    margin-bottom: 5px;
+    color: #555;
+}
+
+input[type="email"],
+input[type="text"] {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 20px;
+    border: 1px solid #ccc;
+    border-radius: 20px;
+    box-sizing: border-box;
+}
+
+input[type="button"] {
+    width: 100%;
+    background-color: rgba(255, 214, 237, 0.8);;
+    color: white;
+    padding: 14px 20px;
+    margin: 8px 0;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+}
+
+input[type="button"]:hover {
+    background-color: rgba(255, 214, 237, 1);;
+}
+
+input[type="button"]:focus {
+    outline: none;
+}
+
+input[type="button"]:active {
+    background-color: white
+}

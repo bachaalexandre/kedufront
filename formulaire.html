@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulaire de commande</title>
+    <link rel="stylesheet" href="styleconf.css">
+</head>
+<body>
+
+<h2>Formulaire de commande</h2>
+
+<form id="orderForm" method="POST">
+    <label for="email">Adresse e-mail :</label><br>
+    <input type="email" id="email" name="email" required autocomplete="email"><br>
+
+    <label for="name">Nom :</label><br>
+    <input type="text" id="name" name="name" required autocomplete="name"><br>
+
+    <label for="address">Adresse de livraison :</label><br>
+    <input type="text" id="address" name="address" minlength="5" required autocomplete="address"><br>
+
+    <!-- Champ caché pour stocker les détails du panier -->
+    <input type="hidden" id="cartDetails" name="cart">
+
+    <br>
+    <input type="button" value="Envoyer la commande" onclick="submitForm()">
+</form>
+
+<script>
+    function submitForm() {
+        // Récupérer les informations du panier depuis le localStorage
+        var cartItems = JSON.parse(localStorage.getItem('cartItems'));
+
+        // Récupérer les informations du client depuis le localStorage
+        var userEmail = document.getElementById('email').value;
+        var userName = document.getElementById('name').value;
+        var userAddress = document.getElementById('address').value;
+        // Filtrer les produits avec une quantité supérieure à 0
+        var filteredCartItems = cartItems.filter(item => item.quantity > 0);
+
+        //JSON contenant toutes les informations
+        var formData = {
+            email: userEmail,
+            name: userName,
+            address: userAddress,
+            cart: filteredCartItems.map(item => {
+                return {
+                    id: item.productId,
+                    amount: item.quantity
+                };
+            })
+        };
+
+        // Effectuer une requête POST à l'API
+        fetch('https://api.kedufront.juniortaker.com/order/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(formData)
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Erreur lors de l\'envoi de la commande');
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('Commande envoyée avec succès:', data);
+            window.location.href = 'confirmation.html';
+            alert('Votre numéro de commande est : ' + data.command_id);
+            localStorage.setItem('orderNumber', data.command_id);
+            // Effacer les données
+            localStorage.removeItem('cartItems');
+        })
+        .catch(error => {
+            alert('Une erreur est survenu: ' + error);
+        });
+    }
+</script>
+</body>
+</html>
